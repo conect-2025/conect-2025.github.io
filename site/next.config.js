@@ -9,7 +9,7 @@ const nextConfig = {
     contactUrl: 'https://github.com/conect-2025/kasm-registry/issues',
   },
   reactStrictMode: true,
-  swcMinify: true,
+  //swcMinify: true,
   basePath: '/webofweb2/1.0',
   trailingSlash: true,
   images: {
