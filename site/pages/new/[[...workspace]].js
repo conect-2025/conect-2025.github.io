@@ -4,44 +4,53 @@ import { saveAs } from 'file-saver';
 import CreatableSelect from 'react-select/creatable';
 import Select from 'react-select';
 import { useRouter } from 'next/router'
-import allworkspaces from '../../../public/list.json'
+import { promises as fs } from 'fs';
+import path from 'path';
 
-
+// Hämtar dynamiska vägar för statisk generering
 export async function getStaticPaths() {
-  let paths = allworkspaces.workspaces.map(workspace => ({
-    params: {
-      workspace: [btoa(workspace.friendly_name)]
-    }
-  }))
-  paths.push({
-    params: { workspace: null }
-  })
+  const filePath = path.join(process.cwd(), 'data', 'list.json');
+  const jsonData = await fs.readFile(filePath, 'utf8');
+  const allworkspaces = JSON.parse(jsonData);
+
+  const paths = allworkspaces.workspaces.map(workspace => ({
+    params: { workspace: [btoa(workspace.friendly_name)] }
+  }));
+
+  paths.push({ params: { workspace: null } });
+
   return {
     paths,
-    fallback: false, // can also be true or 'blocking'
-  }
+    fallback: false, // Kan också vara true eller 'blocking'
+  };
 }
 
-// `getStaticPaths` requires using `getStaticProps`
+// Hämtar data för varje dynamisk väg
 export async function getStaticProps({ params }) {
-  const workspace = params.workspace
+  const filePath = path.join(process.cwd(), 'data', 'list.json');
+  const jsonData = await fs.readFile(filePath, 'utf8');
+  const allworkspaces = JSON.parse(jsonData);
+
+  const workspace = params.workspace ? atob(params.workspace[0]) : null;
+
   return {
-    // Passed to the page component as props
-    props: { workspace: workspace ?? null },
-  }
+    props: {
+      allworkspaces,
+      workspace,
+    },
+  };
 }
 
-export default function New({ workspace }) {
-
+export default function WorkspacePage({ allworkspaces, workspace }) {
   const name = useRef(null);
   const friendly_name = useRef(null);
   const description = useRef(null);
 
-  const [categories, setCategories] = useState(null)
-  const [architecture, setArchitecture] = useState(null)
-  const [icon, setIcon] = useState(null)
-  const [ext, setExt] = useState('png')
-  const [inlineImage, setInlineImage] = useState(null)
+  const [categories, setCategories] = useState(null);
+  const [architecture, setArchitecture] = useState(null);
+  const [icon, setIcon] = useState(null);
+  const [ext, setExt] = useState('png');
+  const [inlineImage, setInlineImage] = useState(null);
 
   const defaultState = {
     friendly_name: null,
@@ -56,8 +65,10 @@ export default function New({ workspace }) {
     require_gpu: false,
     enabled: true,
     image_type: 'Container',
-  }
+  };
 
+  // Din komponentkod här
+}
   const [combined, setCombined] = useState(defaultState)
 
   const router = useRouter()
